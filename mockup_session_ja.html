@@ -110,12 +110,27 @@
   }
   .camera-box {
     background: #1A1A1A; border-radius: 14px;
-    display: flex; align-items: center; justify-content: center;
-    flex-direction: column; gap: 8px;
-    height: 300px; color: #666; font-size: 12px;
+    position: relative; overflow: hidden;
+    height: 300px;
   }
-  .camera-icon { font-size: 36px; opacity: 0.5; }
-  .camera-hint { font-size: 11px; color: #888; text-align: center; margin-top: 4px; }
+  .camera-box img {
+    width: 100%; height: 100%; object-fit: contain;
+    filter: brightness(0.55) sepia(0.1);
+  }
+  .camera-overlay {
+    position: absolute; inset: 0;
+    display: flex; flex-direction: column;
+    align-items: flex-start; justify-content: flex-end;
+    padding: 10px 12px;
+    background: linear-gradient(to top, rgba(0,0,0,0.55) 0%, transparent 50%);
+  }
+  .camera-dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: #FF4444; display: inline-block; margin-right: 5px;
+    animation: blink 1.2s infinite;
+  }
+  @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.2} }
+  .camera-hint { font-size: 11px; color: #ddd; display: flex; align-items: center; }
 
   /* Timer column */
   .col-timer {}
@@ -274,12 +289,10 @@
             <div>
               <div class="img-label">あなたの映像</div>
               <div class="camera-box">
-                <svg width="40" height="32" viewBox="0 0 28 22" fill="none">
-                  <rect x="1" y="4" width="26" height="17" rx="3" stroke="#555" stroke-width="1.5"/>
-                  <circle cx="14" cy="12" r="5" stroke="#555" stroke-width="1.5"/>
-                  <path d="M19 1 L22 4" stroke="#555" stroke-width="1.5" stroke-linecap="round"/>
-                </svg>
-                <div class="camera-hint">カメラ映像<br>自分の動きを確認</div>
+                <img src="images/warrior/warrior.png" alt="カメラ映像イメージ">
+                <div class="camera-overlay">
+                  <div class="camera-hint"><span class="camera-dot"></span>あなたの映像</div>
+                </div>
               </div>
             </div>
           </div>
