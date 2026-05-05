@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>部位選択UI比較</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Hiragino Sans", "Yu Gothic", sans-serif;
+    background: #F5F4F1; color: #2C2C2C;
+    padding: 20px 24px 48px; font-size: 14px;
+  }
+  .container { max-width: 1100px; margin: 0 auto; }
+  .app-bar {
+    font-size: 18px; font-weight: 800; margin-bottom: 18px;
+    padding-bottom: 12px; border-bottom: 1px solid #E0DDD8;
+    display: flex; align-items: center; gap: 12px;
+  }
+  .app-bar-sub { font-size: 13px; color: #AAA; font-weight: 400; }
+  .tabs { display: flex; gap: 6px; margin-bottom: 20px; flex-wrap: wrap; }
+  .tab {
+    padding: 8px 18px; border-radius: 8px; font-size: 13px; font-weight: 700;
+    cursor: pointer; background: #fff; border: 2px solid #E0DDD8; color: #999; transition: all 0.15s;
+  }
+  .tab.active { background: #E07B4B; border-color: #E07B4B; color: #fff; }
+  .screen { display: none; }
+  .screen.active { display: block; }
+  .wide-card { background: #fff; border-radius: 16px; box-shadow: 0 2px 14px rgba(0,0,0,0.07); padding: 28px 32px; }
+  .layout-2col { display: grid; grid-template-columns: 260px 1fr; gap: 32px; align-items: start; }
+  .dish-panel-label { font-size: 11px; color: #AAA; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; margin-bottom: 4px; }
+  .dish-panel-name { font-size: 22px; font-weight: 800; color: #2C2C2C; margin-bottom: 4px; }
+  .dish-panel-wait { font-size: 14px; color: #888; margin-bottom: 10px; }
+  .tag { display: inline-block; background: #F5F0EB; color: #9B6B3A; font-size: 12px; padding: 3px 12px; border-radius: 20px; margin-bottom: 16px; }
+  .divider-h { border: none; border-top: 1px solid #F0EDE8; margin: 16px 0; }
+  .fixed-note { background: #F5F4F1; border-radius: 8px; padding: 10px 14px; font-size: 12px; color: #AAA; margin-bottom: 16px; }
+  .fixed-note strong { color: #888; }
+  .start-btn {
+    width: 100%; padding: 14px; background: #E07B4B; color: #fff;
+    font-size: 15px; font-weight: 800; border: none; border-radius: 12px;
+    cursor: pointer; font-family: inherit; transition: background 0.15s;
+  }
+  .start-btn:hover { background: #c96a39; }
+  .config-panel { display: flex; flex-direction: column; gap: 24px; }
+  .section-label { font-size: 11px; font-weight: 700; color: #AAA; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 10px; }
+  .chip-row { display: flex; flex-wrap: wrap; gap: 8px; }
+  .chip { border: 2px solid #E8E5DF; border-radius: 30px; padding: 7px 16px; font-size: 13px; font-weight: 600; color: #777; cursor: pointer; background: #fff; transition: all 0.15s; }
+  .chip:hover { border-color: #E07B4B; color: #E07B4B; }
+  .chip.on { background: #FFF3E8; border-color: #E07B4B; color: #E07B4B; }
+  .body-layout { display: flex; gap: 24px; align-items: flex-start; }
+  .body-svg-wrap { flex-shrink: 0; }
+  svg.body-fig { width: 150px; height: auto; }
+  .body-region { fill: #F0EDE8; stroke: #D0C8BE; stroke-width: 1.5; cursor: pointer; transition: fill 0.15s; }
+  .body-region.on { fill: #F5C8A8; stroke: #E07B4B; }
+  .body-legend { display: flex; flex-direction: column; gap: 8px; flex: 1; }
+  .legend-item { display: flex; align-items: center; gap: 10px; font-size: 13px; font-weight: 600; color: #888; padding: 8px 12px; border-radius: 10px; border: 2px solid #E8E5DF; cursor: pointer; transition: all 0.15s; }
+  .legend-item:hover { border-color: #E07B4B; color: #E07B4B; }
+  .legend-item.on { background: #FFF3E8; border-color: #E07B4B; color: #E07B4B; }
+  .legend-dot { width: 10px; height: 10px; border-radius: 50%; background: #E8E5DF; flex-shrink: 0; }
+  .legend-item.on .legend-dot { background: #E07B4B; }
+  .q-label { font-size: 14px; font-weight: 700; margin-bottom: 6px; color: #2C2C2C; }
+  .q-sub { font-size: 11px; color: #AAA; margin-bottom: 8px; }
+  .q-select { width: 100%; padding: 10px 12px; border: 2px solid #E8E5DF; border-radius: 10px; font-size: 13px; color: #2C2C2C; background: #fff; font-family: inherit; }
+  .diff-grid { display: grid; gap: 10px; }
+  .diff-card { border: 2px solid #E8E5DF; border-radius: 12px; padding: 14px 12px; cursor: pointer; transition: all 0.15s; }
+  .diff-card:hover { border-color: #E07B4B; background: #FFF8F3; }
+  .diff-card.on { border-color: #E07B4B; background: #FFF3E8; }
+  .case-label { display: inline-block; background: #2C2C2C; color: #fff; font-size: 11px; font-weight: 700; padding: 4px 12px; border-radius: 6px; margin-bottom: 18px; }
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="app-bar">
+    Wait2Move
+    <span class="app-bar-sub">部位選択UI比較（難易度は「普通」で固定）</span>
+  </div>
+
+  <div class="tabs" id="tabs">
+    <div class="tab active" data-variant="chip" onclick="show('chip',this)">案 チップ選択</div>
+    <div class="tab" data-variant="body" onclick="show('body',this)">案 身体図タップ</div>
+    <div class="tab" data-variant="question" onclick="show('question',this)">案 質問形式</div>
+    <div class="tab" data-variant="profile" onclick="show('profile',this)">案 プロフィール選択</div>
+  </div>
+
+  <!-- チップ選択 -->
+  <div class="screen active" id="screen-chip">
+    <div class="wide-card">
+      <div class="case-label">案 チップ選択</div>
+      <div class="layout-2col">
+        <div>
+          <div class="dish-panel-label">選択中の料理</div>
+          <div class="dish-panel-name">味噌汁</div>
+          <div class="dish-panel-wait">お湯が沸くまで（1〜3分）</div>
+          <div><span class="tag">japanese</span></div>
+          <hr class="divider-h">
+          <div class="fixed-note">難易度：<strong>普通</strong>（この比較では固定）</div>
+          <button class="start-btn">セッションを開始</button>
+        </div>
+        <div class="config-panel">
+          <div class="section-label">動かしたい部位を選んでください（複数選択可）</div>
+          <div class="chip-row">
+            <div class="chip" onclick="this.classList.toggle('on')">首・頭</div>
+            <div class="chip on" onclick="this.classList.toggle('on')">肩・上半身</div>
+            <div class="chip on" onclick="this.classList.toggle('on')">体幹</div>
+            <div class="chip" onclick="this.classList.toggle('on')">下半身</div>
+            <div class="chip" onclick="this.classList.toggle('on')">呼吸・リラックス</div>
+            <div class="chip" onclick="this.classList.toggle('on')">全身おまかせ</div>
+          </div>
+          <div style="font-size:11px;color:#BBB;">すべてコンロ周辺で安全にできる動きです</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 身体図タップ -->
+  <div class="screen" id="screen-body">
+    <div class="wide-card">
+      <div class="case-label">案 身体図タップ</div>
+      <div class="layout-2col">
+        <div>
+          <div class="dish-panel-label">選択中の料理</div>
+          <div class="dish-panel-name">味噌汁</div>
+          <div class="dish-panel-wait">お湯が沸くまで（1〜3分）</div>
+          <div><span class="tag">japanese</span></div>
+          <hr class="divider-h">
+          <div class="fixed-note">難易度：<strong>普通</strong>（この比較では固定）</div>
+          <button class="start-btn">セッションを開始</button>
+        </div>
+        <div class="config-panel">
+          <div class="section-label">動かしたい部位をタップ（身体図または右のリストから）</div>
+          <div class="body-layout">
+            <div class="body-svg-wrap">
+              <svg class="body-fig" viewBox="0 0 120 280" xmlns="http://www.w3.org/2000/svg">
+                <circle class="body-region" id="bp-head" cx="60" cy="22" r="18" onclick="tapSvg('bp-head','bp-neck')"/>
+                <rect class="body-region" id="bp-neck" x="52" y="38" width="16" height="12" rx="4" onclick="tapSvg('bp-head','bp-neck')"/>
+                <rect class="body-region on" id="bp-larm" x="8" y="52" width="24" height="64" rx="10" onclick="tapSvg('bp-larm','bp-upper')"/>
+                <rect class="body-region on" id="bp-rarm" x="88" y="52" width="24" height="64" rx="10" onclick="tapSvg('bp-larm','bp-upper')"/>
+                <rect class="body-region on" id="bp-chest" x="34" y="50" width="52" height="44" rx="8" onclick="tapSvg('bp-chest','bp-upper')"/>
+                <rect class="body-region on" id="bp-core" x="34" y="96" width="52" height="36" rx="8" onclick="tapSvg('bp-core','bp-core')"/>
+                <rect class="body-region" id="bp-lleg" x="36" y="136" width="22" height="90" rx="10" onclick="tapSvg('bp-lleg','bp-lower')"/>
+                <rect class="body-region" id="bp-rleg" x="62" y="136" width="22" height="90" rx="10" onclick="tapSvg('bp-lleg','bp-lower')"/>
+              </svg>
+            </div>
+            <div class="body-legend">
+              <div class="legend-item" id="bp-neck" onclick="tapLegend('bp-neck',['bp-head','bp-neck'])"><div class="legend-dot"></div>首・頭</div>
+              <div class="legend-item on" id="bp-upper" onclick="tapLegend('bp-upper',['bp-larm','bp-rarm','bp-chest'])"><div class="legend-dot"></div>肩・上半身</div>
+              <div class="legend-item on" id="bp-core" onclick="tapLegend('bp-core',['bp-core'])"><div class="legend-dot"></div>体幹</div>
+              <div class="legend-item" id="bp-lower" onclick="tapLegend('bp-lower',['bp-lleg','bp-rleg'])"><div class="legend-dot"></div>下半身</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 質問形式 -->
+  <div class="screen" id="screen-question">
+    <div class="wide-card">
+      <div class="case-label">案 質問形式</div>
+      <div class="layout-2col">
+        <div>
+          <div class="dish-panel-label">選択中の料理</div>
+          <div class="dish-panel-name">味噌汁</div>
+          <div class="dish-panel-wait">お湯が沸くまで（1〜3分）</div>
+          <div><span class="tag">japanese</span></div>
+          <hr class="divider-h">
+          <div class="fixed-note">難易度：<strong>普通</strong>（この比較では固定）</div>
+          <button class="start-btn">セッションを開始</button>
+        </div>
+        <div class="config-panel">
+          <div>
+            <div class="q-label">今、どこを動かしたいですか？</div>
+            <div class="q-sub">一番気になる部位を選んでください</div>
+            <select class="q-select">
+              <option>首・頭まわり</option>
+              <option selected>肩・上半身</option>
+              <option>体幹</option>
+              <option>下半身</option>
+              <option>呼吸・リラックス</option>
+              <option>おまかせ（全身）</option>
+            </select>
+          </div>
+          <div>
+            <div class="q-label">気になる症状はありますか？</div>
+            <div class="q-sub">あてはまるものをすべて選んでください</div>
+            <div class="chip-row">
+              <div class="chip on" onclick="this.classList.toggle('on')">肩こり</div>
+              <div class="chip" onclick="this.classList.toggle('on')">腰の張り</div>
+              <div class="chip" onclick="this.classList.toggle('on')">首のこわばり</div>
+              <div class="chip" onclick="this.classList.toggle('on')">目の疲れ</div>
+              <div class="chip" onclick="this.classList.toggle('on')">特になし</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- プロフィール選択 -->
+  <div class="screen" id="screen-profile">
+    <div class="wide-card">
+      <div class="case-label">案 プロフィール選択</div>
+      <div class="layout-2col">
+        <div>
+          <div class="dish-panel-label">選択中の料理</div>
+          <div class="dish-panel-name">味噌汁</div>
+          <div class="dish-panel-wait">お湯が沸くまで（1〜3分）</div>
+          <div><span class="tag">japanese</span></div>
+          <hr class="divider-h">
+          <div class="fixed-note">難易度：<strong>プロフィールに含む</strong></div>
+          <button class="start-btn">セッションを開始</button>
+        </div>
+        <div class="config-panel">
+          <div class="section-label">今日のプロフィールを1つ選んでください</div>
+          <div class="diff-grid" style="grid-template-columns:1fr 1fr;">
+            <div class="diff-card on" onclick="selDiff(this)" style="text-align:left;">
+              <div style="font-size:14px;font-weight:800;color:#2C2C2C;margin-bottom:4px;">肩・首をほぐしたい</div>
+              <div style="font-size:11px;color:#AAA;">首・頭 ／ 肩・上半身</div>
+            </div>
+            <div class="diff-card" onclick="selDiff(this)" style="text-align:left;">
+              <div style="font-size:14px;font-weight:800;color:#2C2C2C;margin-bottom:4px;">上半身・体幹を動かす</div>
+              <div style="font-size:11px;color:#AAA;">肩・上半身 ／ 体幹</div>
+            </div>
+            <div class="diff-card" onclick="selDiff(this)" style="text-align:left;">
+              <div style="font-size:14px;font-weight:800;color:#2C2C2C;margin-bottom:4px;">体幹を意識したい</div>
+              <div style="font-size:11px;color:#AAA;">体幹</div>
+            </div>
+            <div class="diff-card" onclick="selDiff(this)" style="text-align:left;">
+              <div style="font-size:14px;font-weight:800;color:#2C2C2C;margin-bottom:4px;">全身をリフレッシュ</div>
+              <div style="font-size:11px;color:#AAA;">全身</div>
+            </div>
+            <div class="diff-card" onclick="selDiff(this)" style="text-align:left;">
+              <div style="font-size:14px;font-weight:800;color:#2C2C2C;margin-bottom:4px;">呼吸を整えたい</div>
+              <div style="font-size:11px;color:#AAA;">呼吸・リラックス</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+<script>
+const legendToSvg = { 'bp-neck':['bp-head','bp-neck'], 'bp-upper':['bp-larm','bp-rarm','bp-chest'], 'bp-core':['bp-core'], 'bp-lower':['bp-lleg','bp-rleg'] };
+const bilateralGroups = { 'bp-head':['bp-head','bp-neck'], 'bp-larm':['bp-larm','bp-rarm'], 'bp-lleg':['bp-lleg','bp-rleg'] };
+
+function tapSvg(svgId, legendId) {
+  const el = document.getElementById(svgId);
+  const newState = !el.classList.contains('on');
+  const group = bilateralGroups[svgId] || [svgId];
+  group.forEach(id => { const g = document.getElementById(id); if (g) g.classList.toggle('on', newState); });
+  const anyOn = legendToSvg[legendId].some(id => document.getElementById(id).classList.contains('on'));
+  const legend = document.getElementById(legendId);
+  legend.classList.toggle('on', anyOn);
+  const dot = legend.querySelector('.legend-dot');
+  if (dot) dot.style.background = anyOn ? '#E07B4B' : '#E8E5DF';
+}
+function tapLegend(legendId, svgIds) {
+  const legend = document.getElementById(legendId);
+  legend.classList.toggle('on');
+  const isOn = legend.classList.contains('on');
+  svgIds.forEach(id => { const el = document.getElementById(id); if (el) el.classList.toggle('on', isOn); });
+  const dot = legend.querySelector('.legend-dot');
+  if (dot) dot.style.background = isOn ? '#E07B4B' : '#E8E5DF';
+}
+function selDiff(el) {
+  el.closest('.diff-grid').querySelectorAll('.diff-card').forEach(c => c.classList.remove('on'));
+  el.classList.add('on');
+}
+function show(id, tabEl) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('screen-' + id).classList.add('active');
+  tabEl.classList.add('active');
+}
+function applyOrder() {
+  const params = new URLSearchParams(window.location.search);
+  const orderStr = params.get('order');
+  if (!orderStr) return;
+  const order = orderStr.split(',');
+  const tabsEl = document.getElementById('tabs');
+  const container = document.querySelector('.container');
+  order.forEach(id => {
+    const tab = tabsEl.querySelector(`[data-variant="${id}"]`);
+    if (tab) tabsEl.appendChild(tab);
+    const screen = document.getElementById('screen-' + id);
+    if (screen) container.appendChild(screen);
+  });
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  const firstTab = tabsEl.querySelector('.tab');
+  if (firstTab) firstTab.classList.add('active');
+  const firstScreen = document.getElementById('screen-' + order[0]);
+  if (firstScreen) firstScreen.classList.add('active');
+}
+document.addEventListener('DOMContentLoaded', applyOrder);
+</script>
+</body>
+</html>

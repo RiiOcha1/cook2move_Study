@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>難易度選択UI比較</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Hiragino Sans", "Yu Gothic", sans-serif;
+    background: #F5F4F1; color: #2C2C2C;
+    padding: 20px 24px 48px; font-size: 14px;
+  }
+  .container { max-width: 1100px; margin: 0 auto; }
+  .app-bar { font-size: 18px; font-weight: 800; margin-bottom: 18px; padding-bottom: 12px; border-bottom: 1px solid #E0DDD8; display: flex; align-items: center; gap: 12px; }
+  .app-bar-sub { font-size: 13px; color: #AAA; font-weight: 400; }
+  .tabs { display: flex; gap: 6px; margin-bottom: 20px; flex-wrap: wrap; }
+  .tab { padding: 8px 18px; border-radius: 8px; font-size: 13px; font-weight: 700; cursor: pointer; background: #fff; border: 2px solid #E0DDD8; color: #999; transition: all 0.15s; }
+  .tab.active { background: #E07B4B; border-color: #E07B4B; color: #fff; }
+  .screen { display: none; }
+  .screen.active { display: block; }
+  .wide-card { background: #fff; border-radius: 16px; box-shadow: 0 2px 14px rgba(0,0,0,0.07); padding: 28px 32px; }
+  .layout-2col { display: grid; grid-template-columns: 260px 1fr; gap: 32px; align-items: start; }
+  .dish-panel-label { font-size: 11px; color: #AAA; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; margin-bottom: 4px; }
+  .dish-panel-name { font-size: 22px; font-weight: 800; color: #2C2C2C; margin-bottom: 4px; }
+  .dish-panel-wait { font-size: 14px; color: #888; margin-bottom: 10px; }
+  .tag { display: inline-block; background: #F5F0EB; color: #9B6B3A; font-size: 12px; padding: 3px 12px; border-radius: 20px; margin-bottom: 16px; }
+  .divider-h { border: none; border-top: 1px solid #F0EDE8; margin: 16px 0; }
+  .fixed-note { background: #F5F4F1; border-radius: 8px; padding: 10px 14px; font-size: 12px; color: #AAA; margin-bottom: 16px; }
+  .fixed-note strong { color: #888; }
+  .start-btn { width: 100%; padding: 14px; background: #E07B4B; color: #fff; font-size: 15px; font-weight: 800; border: none; border-radius: 12px; cursor: pointer; font-family: inherit; transition: background 0.15s; }
+  .start-btn:hover { background: #c96a39; }
+  .config-panel { display: flex; flex-direction: column; gap: 24px; }
+  .section-label { font-size: 11px; font-weight: 700; color: #AAA; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 10px; }
+  .diff-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; }
+  .diff-card { border: 2px solid #E8E5DF; border-radius: 12px; padding: 14px 10px; text-align: center; cursor: pointer; transition: all 0.15s; }
+  .diff-card:hover { border-color: #E07B4B; background: #FFF8F3; }
+  .diff-card.on { border-color: #E07B4B; background: #FFF3E8; }
+  .diff-card.on .diff-label { color: #E07B4B; }
+  .diff-dots { display: flex; gap: 4px; justify-content: center; margin-bottom: 8px; }
+  .dot { width: 8px; height: 8px; border-radius: 50%; background: #E8E5DF; }
+  .dot.on { background: #E07B4B; }
+  .diff-label { font-size: 15px; font-weight: 800; display: block; margin-bottom: 3px; }
+  .diff-desc { font-size: 11px; color: #AAA; line-height: 1.4; }
+  .q-label { font-size: 14px; font-weight: 700; margin-bottom: 6px; color: #2C2C2C; }
+  .q-sub { font-size: 11px; color: #AAA; margin-bottom: 8px; }
+  .q-group { display: flex; flex-direction: column; gap: 20px; }
+  .scale-row { display: flex; gap: 6px; }
+  .scale-btn { flex: 1; padding: 14px 0; border-radius: 10px; font-size: 14px; font-weight: 700; border: 2px solid #E8E5DF; background: #fff; color: #AAA; cursor: pointer; transition: all 0.15s; font-family: inherit; }
+  .scale-btn:hover { border-color: #E07B4B; color: #E07B4B; }
+  .scale-btn.on { background: #E07B4B; border-color: #E07B4B; color: #fff; }
+  .scale-ends { display: flex; justify-content: space-between; font-size: 11px; color: #BBB; margin-top: 6px; }
+  .case-label { display: inline-block; background: #2C2C2C; color: #fff; font-size: 11px; font-weight: 700; padding: 4px 12px; border-radius: 6px; margin-bottom: 18px; }
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="app-bar">
+    Wait2Move
+    <span class="app-bar-sub">難易度選択UI比較（部位は「肩・上半身／体幹」で固定）</span>
+  </div>
+
+  <div class="tabs" id="tabs">
+    <div class="tab active" data-variant="card" onclick="show('card',this)">案 カード3択</div>
+    <div class="tab" data-variant="question" onclick="show('question',this)">案 質問形式</div>
+    <div class="tab" data-variant="profile" onclick="show('profile',this)">案 プロフィール選択</div>
+  </div>
+
+  <!-- カード3択 -->
+  <div class="screen active" id="screen-card">
+    <div class="wide-card">
+      <div class="case-label">案 カード3択</div>
+      <div class="layout-2col">
+        <div>
+          <div class="dish-panel-label">選択中の料理</div>
+          <div class="dish-panel-name">味噌汁</div>
+          <div class="dish-panel-wait">お湯が沸くまで（1〜3分）</div>
+          <div><span class="tag">japanese</span></div>
+          <hr class="divider-h">
+          <div class="fixed-note">対象部位：<strong>肩・上半身／体幹</strong>（この比較では固定）</div>
+          <button class="start-btn">セッションを開始</button>
+        </div>
+        <div class="config-panel">
+          <div>
+            <div class="section-label">難易度を選んでください</div>
+            <div class="diff-grid">
+              <div class="diff-card" onclick="selDiff(this)">
+                <div class="diff-dots"><div class="dot on"></div><div class="dot"></div><div class="dot"></div></div>
+                <span class="diff-label">やさしい</span>
+                <span class="diff-desc">ゆっくり・小さな動き</span>
+              </div>
+              <div class="diff-card on" onclick="selDiff(this)">
+                <div class="diff-dots"><div class="dot on"></div><div class="dot on"></div><div class="dot"></div></div>
+                <span class="diff-label">普通</span>
+                <span class="diff-desc">標準的な動き（推奨）</span>
+              </div>
+              <div class="diff-card" onclick="selDiff(this)">
+                <div class="diff-dots"><div class="dot on"></div><div class="dot on"></div><div class="dot on"></div></div>
+                <span class="diff-label">しっかり</span>
+                <span class="diff-desc">大きな動き・回数多め</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 質問形式 -->
+  <div class="screen" id="screen-question">
+    <div class="wide-card">
+      <div class="case-label">案 質問形式</div>
+      <div class="layout-2col">
+        <div>
+          <div class="dish-panel-label">選択中の料理</div>
+          <div class="dish-panel-name">味噌汁</div>
+          <div class="dish-panel-wait">お湯が沸くまで（1〜3分）</div>
+          <div><span class="tag">japanese</span></div>
+          <hr class="divider-h">
+          <div class="fixed-note">対象部位：<strong>肩・上半身／体幹</strong>（この比較では固定）</div>
+          <button class="start-btn">セッションを開始</button>
+        </div>
+        <div class="config-panel">
+          <div class="q-group">
+            <div>
+              <div class="q-label">今日の体の疲れ具合は？</div>
+              <div class="q-sub">数字が大きいほど疲れている</div>
+              <div class="scale-row">
+                <button class="scale-btn" onclick="selScale(this)">1</button>
+                <button class="scale-btn" onclick="selScale(this)">2</button>
+                <button class="scale-btn on" onclick="selScale(this)">3</button>
+                <button class="scale-btn" onclick="selScale(this)">4</button>
+                <button class="scale-btn" onclick="selScale(this)">5</button>
+              </div>
+              <div class="scale-ends"><span>疲れていない</span><span>かなり疲れている</span></div>
+            </div>
+            <div>
+              <div class="q-label">どれくらいしっかり動きたいですか？</div>
+              <div class="scale-row">
+                <button class="scale-btn" onclick="selScale(this)">1</button>
+                <button class="scale-btn on" onclick="selScale(this)">2</button>
+                <button class="scale-btn" onclick="selScale(this)">3</button>
+                <button class="scale-btn" onclick="selScale(this)">4</button>
+                <button class="scale-btn" onclick="selScale(this)">5</button>
+              </div>
+              <div class="scale-ends"><span>ゆっくりでいい</span><span>しっかり動きたい</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- プロフィール選択 -->
+  <div class="screen" id="screen-profile">
+    <div class="wide-card">
+      <div class="case-label">案 プロフィール選択</div>
+      <div class="layout-2col">
+        <div>
+          <div class="dish-panel-label">選択中の料理</div>
+          <div class="dish-panel-name">味噌汁</div>
+          <div class="dish-panel-wait">お湯が沸くまで（1〜3分）</div>
+          <div><span class="tag">japanese</span></div>
+          <hr class="divider-h">
+          <div class="fixed-note">対象部位：<strong>プロフィールに含む</strong></div>
+          <button class="start-btn">セッションを開始</button>
+        </div>
+        <div class="config-panel">
+          <div class="section-label">今日のプロフィールを1つ選んでください</div>
+          <div class="diff-grid" style="grid-template-columns:1fr 1fr;">
+            <div class="diff-card on" onclick="selDiff(this)" style="text-align:left;padding:14px 16px;">
+              <div style="font-size:14px;font-weight:800;color:#2C2C2C;margin-bottom:4px;">軽くリフレッシュ</div>
+              <div style="font-size:11px;color:#AAA;">強度：やさしい</div>
+            </div>
+            <div class="diff-card" onclick="selDiff(this)" style="text-align:left;padding:14px 16px;">
+              <div style="font-size:14px;font-weight:800;color:#2C2C2C;margin-bottom:4px;">普通に動く</div>
+              <div style="font-size:11px;color:#AAA;">強度：普通</div>
+            </div>
+            <div class="diff-card" onclick="selDiff(this)" style="text-align:left;padding:14px 16px;">
+              <div style="font-size:14px;font-weight:800;color:#2C2C2C;margin-bottom:4px;">しっかり動く</div>
+              <div style="font-size:11px;color:#AAA;">強度：しっかり</div>
+            </div>
+            <div class="diff-card" onclick="selDiff(this)" style="text-align:left;padding:14px 16px;">
+              <div style="font-size:14px;font-weight:800;color:#2C2C2C;margin-bottom:4px;">今日は疲れ気味</div>
+              <div style="font-size:11px;color:#AAA;">強度：やさしい（短め）</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+<script>
+function selDiff(el) {
+  el.closest('.diff-grid').querySelectorAll('.diff-card').forEach(c => c.classList.remove('on'));
+  el.classList.add('on');
+}
+function selScale(el) {
+  el.closest('.scale-row').querySelectorAll('.scale-btn').forEach(b => b.classList.remove('on'));
+  el.classList.add('on');
+}
+function show(id, tabEl) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('screen-' + id).classList.add('active');
+  tabEl.classList.add('active');
+}
+function applyOrder() {
+  const params = new URLSearchParams(window.location.search);
+  const orderStr = params.get('order');
+  if (!orderStr) return;
+  const order = orderStr.split(',');
+  const tabsEl = document.getElementById('tabs');
+  const container = document.querySelector('.container');
+  order.forEach(id => {
+    const tab = tabsEl.querySelector(`[data-variant="${id}"]`);
+    if (tab) tabsEl.appendChild(tab);
+    const screen = document.getElementById('screen-' + id);
+    if (screen) container.appendChild(screen);
+  });
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  const firstTab = tabsEl.querySelector('.tab');
+  if (firstTab) firstTab.classList.add('active');
+  const firstScreen = document.getElementById('screen-' + order[0]);
+  if (firstScreen) firstScreen.classList.add('active');
+}
+document.addEventListener('DOMContentLoaded', applyOrder);
+</script>
+</body>
+</html>

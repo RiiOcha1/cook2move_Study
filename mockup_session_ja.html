@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>エクササイズ画面 — 自己映像フィードバック比較</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Hiragino Sans", "Yu Gothic", sans-serif;
+    background: #F5F4F1;
+    color: #2C2C2C;
+    padding: 20px 24px 48px;
+    font-size: 14px;
+  }
+
+  .container { max-width: 1100px; margin: 0 auto; }
+
+  .app-bar {
+    font-size: 18px; font-weight: 800;
+    margin-bottom: 18px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid #E0DDD8;
+    display: flex; align-items: center; gap: 12px;
+  }
+  .app-bar-sub { font-size: 13px; color: #AAA; font-weight: 400; }
+
+  .tabs {
+    display: flex; gap: 6px; margin-bottom: 20px; flex-wrap: wrap;
+  }
+  .tab {
+    padding: 8px 18px; border-radius: 8px;
+    font-size: 13px; font-weight: 700;
+    cursor: pointer; background: #fff;
+    border: 2px solid #E0DDD8; color: #999;
+    transition: all 0.15s;
+  }
+  .tab.active { background: #E07B4B; border-color: #E07B4B; color: #fff; }
+
+  .screen { display: none; }
+  .screen.active { display: block; }
+
+  .wide-card {
+    background: #fff; border-radius: 16px;
+    box-shadow: 0 2px 14px rgba(0,0,0,0.07);
+    padding: 28px 32px;
+  }
+
+  /* Session header */
+  .session-header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding-bottom: 16px;
+    border-bottom: 1px solid #F0EDE8;
+    margin-bottom: 20px;
+  }
+  .dish-title { font-size: 20px; font-weight: 800; }
+  .dish-tag {
+    font-size: 12px; background: #F5F0EB; color: #9B6B3A;
+    padding: 4px 14px; border-radius: 20px; font-weight: 600;
+  }
+  .progress-wrap { flex: 1; margin: 0 32px; }
+  .progress-bar {
+    background: #F0EDE8; border-radius: 4px; height: 8px; overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%; background: #E07B4B; border-radius: 4px;
+    width: 42%;
+  }
+  .progress-label { font-size: 11px; color: #BBB; text-align: right; margin-top: 4px; }
+
+  /* 4-column layout: controls | image | timer | next */
+  .session-layout {
+    display: grid;
+    grid-template-columns: 120px 1fr 220px 220px;
+    gap: 24px;
+    align-items: start;
+  }
+
+  /* Controls column */
+  .col-ctrl { display: flex; flex-direction: column; gap: 10px; padding-top: 4px; }
+  .btn {
+    width: 100%; padding: 10px 8px;
+    border: 2px solid #E0DDD8; border-radius: 10px;
+    font-size: 13px; font-weight: 700; color: #555;
+    background: #fff; cursor: pointer; font-family: inherit;
+    transition: all 0.15s;
+  }
+  .btn:hover { border-color: #ccc; }
+  .btn-end { color: #CC4444; border-color: #FFCCCC; background: #FFF5F5; }
+
+  /* Image column */
+  .col-img {}
+  .img-label {
+    font-size: 11px; color: #AAA; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.5px;
+    margin-bottom: 8px;
+  }
+  .illust-box {
+    background: #F9F7F4; border-radius: 14px;
+    display: flex; align-items: center; justify-content: center;
+    overflow: hidden; height: 300px;
+  }
+  .illust-box img {
+    max-height: 100%; max-width: 100%; object-fit: contain;
+  }
+
+  /* Camera layout variant (案B) */
+  .img-split {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 12px;
+  }
+  .camera-box {
+    background: #1A1A1A; border-radius: 14px;
+    display: flex; align-items: center; justify-content: center;
+    flex-direction: column; gap: 8px;
+    height: 300px; color: #666; font-size: 12px;
+  }
+  .camera-icon { font-size: 36px; opacity: 0.5; }
+  .camera-hint { font-size: 11px; color: #888; text-align: center; margin-top: 4px; }
+
+  /* Timer column */
+  .col-timer {}
+  .step-counter { font-size: 12px; color: #BBB; margin-bottom: 4px; }
+  .step-name { font-size: 18px; font-weight: 800; color: #2C2C2C; margin-bottom: 16px; line-height: 1.3; }
+  .timer-num {
+    font-size: 88px; font-weight: 900; color: #E07B4B;
+    line-height: 1; letter-spacing: -3px;
+  }
+  .timer-sec { font-size: 16px; color: #AAA; margin-top: 4px; }
+  .total-remaining {
+    margin-top: 20px; font-size: 12px; color: #AAA;
+    background: #F9F7F4; border-radius: 8px; padding: 8px 12px;
+  }
+  .total-remaining strong { color: #888; }
+
+  /* Next/desc column */
+  .col-next {}
+  .next-box {
+    background: #F9F7F4; border-radius: 10px;
+    padding: 12px 14px; font-size: 13px; color: #888;
+    margin-bottom: 12px;
+  }
+  .next-label {
+    font-size: 10px; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 0.5px; color: #BBB; margin-bottom: 5px;
+  }
+  .next-name { font-weight: 700; color: #666; }
+  .desc-box {
+    background: #FFF8F3; border-left: 4px solid #E07B4B;
+    border-radius: 0 8px 8px 0;
+    padding: 12px 14px; font-size: 13px; color: #4A3520; line-height: 1.65;
+  }
+  .desc-title { font-weight: 800; font-size: 14px; margin-bottom: 5px; color: #2C2C2C; }
+
+  .case-label {
+    display: inline-block;
+    background: #2C2C2C; color: #fff;
+    font-size: 12px; font-weight: 700;
+    padding: 4px 14px; border-radius: 20px;
+    margin-bottom: 14px;
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <div class="app-bar">
+    Cook2Move
+    <span class="app-bar-sub">エクササイズ画面 — 映像フィードバック比較</span>
+  </div>
+
+  <div class="tabs">
+    <div class="tab active" onclick="show('no')">案 映像フィードバックなし</div>
+    <div class="tab" onclick="show('yes')">案 自己映像フィードバックあり</div>
+  </div>
+
+  <!-- 案A: 映像なし -->
+  <div class="screen active" id="screen-no">
+    <div class="case-label">案 映像フィードバックなし</div>
+    <div class="wide-card">
+
+      <!-- Session header -->
+      <div class="session-header">
+        <div>
+          <div class="dish-title">味噌汁</div>
+          <div style="font-size:12px;color:#AAA;margin-top:2px;">お湯が沸くまで（1〜3分）</div>
+        </div>
+        <div class="progress-wrap">
+          <div class="progress-bar"><div class="progress-fill"></div></div>
+          <div class="progress-label">残り 72秒 / 120秒</div>
+        </div>
+        <span class="dish-tag">japanese</span>
+      </div>
+
+      <!-- 4-column layout -->
+      <div class="session-layout">
+
+        <!-- Controls -->
+        <div class="col-ctrl">
+          <button class="btn">&#9646;&#9646; 一時停止</button>
+          <button class="btn btn-end">&#x2715; 終了</button>
+        </div>
+
+        <!-- Exercise illustration -->
+        <div class="col-img">
+          <div class="img-label">お手本</div>
+          <div class="illust-box">
+            <img src="images/warrior/warrior.png" alt="エクササイズイラスト">
+          </div>
+        </div>
+
+        <!-- Timer -->
+        <div class="col-timer">
+          <div class="step-counter">ステップ 2 / 3</div>
+          <div class="step-name">肩回し</div>
+          <div class="timer-num">18</div>
+          <div class="timer-sec">秒</div>
+          <div class="total-remaining">
+            合計残り時間: <strong>72秒</strong>
+          </div>
+        </div>
+
+        <!-- Next step + description -->
+        <div class="col-next">
+          <div class="next-box">
+            <div class="next-label">次のステップ</div>
+            <div class="next-name">手首回し</div>
+          </div>
+          <div class="desc-box">
+            <div class="desc-title">肩回し</div>
+            両肩を前から後ろにゆっくり大きく回します。肩の付け根をほぐすイメージで、首をリラックスさせながら行いましょう。
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- 案B: 映像あり -->
+  <div class="screen" id="screen-yes">
+    <div class="case-label">案 自己映像フィードバックあり</div>
+    <div class="wide-card">
+
+      <!-- Session header -->
+      <div class="session-header">
+        <div>
+          <div class="dish-title">味噌汁</div>
+          <div style="font-size:12px;color:#AAA;margin-top:2px;">お湯が沸くまで（1〜3分）</div>
+        </div>
+        <div class="progress-wrap">
+          <div class="progress-bar"><div class="progress-fill"></div></div>
+          <div class="progress-label">残り 72秒 / 120秒</div>
+        </div>
+        <span class="dish-tag">japanese</span>
+      </div>
+
+      <!-- 4-column layout -->
+      <div class="session-layout">
+
+        <!-- Controls -->
+        <div class="col-ctrl">
+          <button class="btn">&#9646;&#9646; 一時停止</button>
+          <button class="btn btn-end">&#x2715; 終了</button>
+        </div>
+
+        <!-- Split: illustration + camera -->
+        <div class="col-img">
+          <div class="img-split">
+            <div>
+              <div class="img-label">お手本</div>
+              <div class="illust-box">
+                <img src="images/warrior/warrior.png" alt="エクササイズイラスト">
+              </div>
+            </div>
+            <div>
+              <div class="img-label">あなたの映像</div>
+              <div class="camera-box">
+                <svg width="40" height="32" viewBox="0 0 28 22" fill="none">
+                  <rect x="1" y="4" width="26" height="17" rx="3" stroke="#555" stroke-width="1.5"/>
+                  <circle cx="14" cy="12" r="5" stroke="#555" stroke-width="1.5"/>
+                  <path d="M19 1 L22 4" stroke="#555" stroke-width="1.5" stroke-linecap="round"/>
+                </svg>
+                <div class="camera-hint">カメラ映像<br>自分の動きを確認</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Timer -->
+        <div class="col-timer">
+          <div class="step-counter">ステップ 2 / 3</div>
+          <div class="step-name">肩回し</div>
+          <div class="timer-num">18</div>
+          <div class="timer-sec">秒</div>
+          <div class="total-remaining">
+            合計残り時間: <strong>72秒</strong>
+          </div>
+        </div>
+
+        <!-- Next step + description -->
+        <div class="col-next">
+          <div class="next-box">
+            <div class="next-label">次のステップ</div>
+            <div class="next-name">手首回し</div>
+          </div>
+          <div class="desc-box">
+            <div class="desc-title">肩回し</div>
+            両肩を前から後ろにゆっくり大きく回します。肩の付け根をほぐすイメージで、首をリラックスさせながら行いましょう。
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+function show(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('screen-' + id).classList.add('active');
+  event.target.classList.add('active');
+}
+</script>
+</body>
+</html>
