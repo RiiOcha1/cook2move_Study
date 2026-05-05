@@ -80,6 +80,7 @@
     <div class="tab" data-variant="body" onclick="show('body',this)">案 身体図タップ</div>
     <div class="tab" data-variant="question" onclick="show('question',this)">案 質問形式</div>
     <div class="tab" data-variant="profile" onclick="show('profile',this)">案 プロフィール選択</div>
+    <div class="tab" data-variant="auto" onclick="show('auto',this)">案 全自動</div>
   </div>
 
   <!-- チップ選択 -->
@@ -207,7 +208,7 @@
           <div class="dish-panel-wait">お湯が沸くまで（1〜3分）</div>
           <div><span class="tag">japanese</span></div>
           <hr class="divider-h">
-          <div class="fixed-note">難易度：<strong>プロフィールに含む</strong></div>
+          <div class="fixed-note">難易度：<strong>普通</strong>（この比較では固定）</div>
           <button class="start-btn">セッションを開始</button>
         </div>
         <div class="config-panel">
@@ -234,6 +235,43 @@
               <div style="font-size:11px;color:#AAA;">呼吸・リラックス</div>
             </div>
           </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- 全自動 -->
+  <div class="screen" id="screen-auto">
+    <div class="wide-card">
+      <div class="case-label">案 全自動</div>
+      <div class="layout-2col">
+        <div>
+          <div class="dish-panel-label">選択中の料理</div>
+          <div class="dish-panel-name">味噌汁</div>
+          <div class="dish-panel-wait">お湯が沸くまで（1〜3分）</div>
+          <div><span class="tag">japanese</span></div>
+          <hr class="divider-h">
+          <div class="fixed-note">部位・難易度とも<strong>システムが自動決定</strong>（設定不要）</div>
+          <button class="start-btn">セッションを開始</button>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:16px;">
+          <div style="background:#F9F7F4;border-radius:12px;padding:16px 20px;display:flex;flex-direction:column;gap:8px;">
+            <div style="font-size:11px;color:#AAA;font-weight:700;margin-bottom:4px;">自動で選ばれた部位・エクササイズ</div>
+            <div style="display:flex;align-items:center;gap:12px;font-size:14px;">
+              <div style="width:22px;height:22px;border-radius:50%;background:#E07B4B;color:#fff;font-size:11px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;">1</div>
+              首のストレッチ（首・頭）　30秒
+            </div>
+            <div style="display:flex;align-items:center;gap:12px;font-size:14px;">
+              <div style="width:22px;height:22px;border-radius:50%;background:#E07B4B;color:#fff;font-size:11px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;">2</div>
+              肩回し（肩・上半身）　30秒
+            </div>
+            <div style="display:flex;align-items:center;gap:12px;font-size:14px;">
+              <div style="width:22px;height:22px;border-radius:50%;background:#E07B4B;color:#fff;font-size:11px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;">3</div>
+              体幹ツイスト（体幹）　30秒
+            </div>
+          </div>
+          <div style="font-size:12px;color:#AAA;padding:4px;">次回以降は利用履歴をもとに自動調整されます。</div>
         </div>
       </div>
     </div>
