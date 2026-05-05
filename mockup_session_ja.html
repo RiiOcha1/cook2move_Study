@@ -168,9 +168,9 @@
     <span class="app-bar-sub">エクササイズ画面 — 映像フィードバック比較</span>
   </div>
 
-  <div class="tabs">
-    <div class="tab active" onclick="show('no')">案 映像フィードバックなし</div>
-    <div class="tab" onclick="show('yes')">案 自己映像フィードバックあり</div>
+  <div class="tabs" id="tabs">
+    <div class="tab active" data-variant="no" onclick="show('no')">案 映像フィードバックなし</div>
+    <div class="tab" data-variant="yes" onclick="show('yes')">案 自己映像フィードバックあり</div>
   </div>
 
   <!-- 案A: 映像なし -->
@@ -319,8 +319,30 @@ function show(id) {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
   document.getElementById('screen-' + id).classList.add('active');
-  event.target.classList.add('active');
+  document.querySelector(`[data-variant="${id}"]`).classList.add('active');
 }
+
+function applyOrder() {
+  const params = new URLSearchParams(window.location.search);
+  const orderStr = params.get('order');
+  if (!orderStr) return;
+  const order = orderStr.split(',');
+  const tabsEl = document.getElementById('tabs');
+  const container = document.querySelector('.container');
+  order.forEach(id => {
+    const tab = tabsEl.querySelector(`[data-variant="${id}"]`);
+    if (tab) tabsEl.appendChild(tab);
+    const screen = document.getElementById('screen-' + id);
+    if (screen) container.appendChild(screen);
+  });
+  // reset active to first in order
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  const firstId = order[0];
+  document.querySelector(`[data-variant="${firstId}"]`).classList.add('active');
+  document.getElementById('screen-' + firstId).classList.add('active');
+}
+document.addEventListener('DOMContentLoaded', applyOrder);
 </script>
 </body>
 </html>
